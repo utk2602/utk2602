@@ -54,21 +54,3 @@ Postgres via Prisma. Has a terminal cousin in Go: [KeySync-CLI](https://github.c
 
 </div>
 
-<img src="./hd-about-this-page.svg" width="620" alt="about this page"/>
-
-Every graphic here is generated, not embedded from anyone else's server.<br>
-`ascii.svg` is my avatar pushed through a character ramp by<br>
-[`scripts/avatar_portrait.py`](scripts/avatar_portrait.py); the stat graphics and<br>
-these section headings are drawn by [a scheduled action](.github/workflows/stats.yml)<br>
-straight from the GitHub GraphQL API, once a day, committing only what changed.
-
-They animate with SMIL inside the SVG, because GitHub strips scripts from<br>
-READMEs — and since nothing loads from a third party, nothing here can<br>
-rate-limit or go dark. The headings are SVGs for the same reason: GitHub also<br>
-strips CSS, so an image is the only way to put this page's own typeface on them.
-
-The typeface is [JetBrains Mono](scripts/fonts), subset to just the characters<br>
-each graphic draws and inlined as base64. Design and pipeline follow<br>
-[a github profile that generates itself](https://agreeable-credit-859.notion.site/A-GitHub-profile-that-generates-itself-3abedfe9a65a81e4afc9daed90cb4e7e), by [andriidrok1](https://github.com/andriidrok1/andriidrok1).
-
-Language totals cover public repositories only.
