@@ -6,7 +6,7 @@
 
 [x / twitter](https://x.com/utkarshhhhhhh26) &nbsp;·&nbsp;
 [resume](https://github.com/utk2602/utkarsh-resume) &nbsp;·&nbsp;
-[email](mailto:utkarsh@canaryai.com)
+[email](mailto:workutkarshkashyap@gmail.com)
 
 </div>
 
@@ -50,7 +50,7 @@ Postgres via Prisma. Has a terminal cousin in Go: [KeySync-CLI](https://github.c
 
 <img src="./langs.svg" width="620" alt="Top languages by bytes and by repo"/>
 
-<img src="./year.svg" width="620" alt="The last year, one character per day"/>
+<img src="./year.svg" width="620" alt="The last year of contributions, day by day"/>
 
 </div>
 
@@ -71,5 +71,4 @@ The typeface is [JetBrains Mono](scripts/fonts), subset to just the characters<b
 each graphic draws and inlined as base64. Design and pipeline follow<br>
 [a github profile that generates itself](https://agreeable-credit-859.notion.site/A-GitHub-profile-that-generates-itself-3abedfe9a65a81e4afc9daed90cb4e7e), by [andriidrok1](https://github.com/andriidrok1/andriidrok1).
 
-Language totals cover public repositories only. `year.svg` uses the portrait's<br>
-character ramp: `:` `+` `#` `@`, quiet to loud.
+Language totals cover public repositories only.

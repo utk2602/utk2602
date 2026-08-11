@@ -7,7 +7,7 @@ Outputs, all sharing one visual language with ascii.svg (the portrait):
   stats.svg   hero total + weekly sparkline
   streak.svg  current and longest streak
   langs.svg   top languages, by bytes and by repo count
-  year.svg    the year as a character map, in the portrait's own ramp
+  year.svg    the year as the standard contribution grid, in the page's ink
 
 Every file uses the portrait's grey ink, a monospace face, a transparent
 background, and the same left-to-right clipPath reveal with a cursor riding
@@ -97,7 +97,6 @@ WIDTH = 620            # every graphic shares one column width
 LEFT = 34              # shared left inset, so stacked blocks line up
                        # (year.svg needs it for the weekday gutter)
 REVEAL = 1.30          # seconds; matches the portrait's cadence
-RAMP = [" ", ":", "+", "#", "@"]      # steps of the portrait's own ramp
 MON = ["jan", "feb", "mar", "apr", "may", "jun",
        "jul", "aug", "sep", "oct", "nov", "dec"]
 
@@ -392,19 +391,34 @@ def draw_heading(word):
 
 
 def draw_year(s):
-    """Seven rows by fifty-three weeks, intensity as a character."""
-    FS, LH, COLW = 9.2, 11.0, 2
-    CW = FS * 0.6
-    pad_l, pad_t = LEFT, 44
+    """The year as the standard contribution grid, drawn in the page's ink.
+
+    Same layout as github.com's own graph — 53 columns of rounded cells,
+    months across the top, mon/wed/fri in the gutter, a less-to-more legend —
+    but in the portrait's grey rather than the site's green, so it sits with
+    the other graphics. Intensity is fill-opacity on the shared data ink,
+    which keeps both light and dark palettes for free.
+    """
+    PITCH, CELL, RX = 11.0, 9.0, 2.0
+    OPS = (0.08, 0.30, 0.52, 0.76, 1.0)   # empty -> loud, on the data ink
+    pad_l = LEFT
     weeks = s["weeks"]
-    ncols = len(weeks) * COLW
-    H = int(pad_t + 7 * LH + 26)
+    grid_t = 56.0
+    grid_w = len(weeks) * PITCH - (PITCH - CELL)
+    grid_b = grid_t + 6 * PITCH + CELL
+    leg_y = grid_b + 12
+    H = int(leg_y + CELL + 4)
 
     def level(v):
         for i, cut in enumerate((0, 2, 5, 9)):
             if v <= cut:
                 return i
         return 4
+
+    def cell(x, y, op):
+        return (f'<rect x="{x:.1f}" y="{y:.1f}" width="{CELL:.0f}" '
+                f'height="{CELL:.0f}" rx="{RX:.0f}" class="d-f" '
+                f'fill-opacity="{op}"/>')
 
     p = [head(WIDTH, H)]
     p.append(f'<g opacity="0">{fade(0.10)}'
@@ -414,49 +428,44 @@ def draw_year(s):
                      f"{sum(len(w) for w in weeks)} days had a contribution", 11)
              + '</g>')
 
-    # ramp legend, so the encoding is never carried by shade alone
-    lx = WIDTH - 6
-    p.append(f'<g opacity="0">{fade(1.30)}'
-             + label(lx - 78, 32, "less", 9, "m-f", "end")
-             + f'<text xml:space="preserve" x="{lx - 72}" y="32" class="d-f" '
-             f'font-size="{FS}">{" ".join(RAMP[1:])}</text>'
-             + label(lx, 32, "more", 9, "m-f", "end") + '</g>')
-
-    for r in range(7):
-        chars = []
-        for w in weeks:
-            day = next((d for d in w if d.get("weekday") == r), None)
-            v = day["contributionCount"] if day else 0
-            chars.append(RAMP[level(v)] * COLW)
-        line = "".join(chars).rstrip()
-        if not line:
-            continue
-        y = pad_t + r * LH
-        w_px = max(len(line), 1) * CW
-        cid = f"ry{r}"
-        delay = 0.30 + r * 0.07
-        p.append(f'<clipPath id="{cid}"><rect x="{pad_l}" y="{y}" '
-                 f'height="{LH}" width="0"><animate attributeName="width" '
-                 f'from="0" to="{w_px:.1f}" begin="{delay:.2f}s" dur="0.40s" '
-                 f'fill="freeze"/></rect></clipPath>')
-        safe = line.replace("&", "&amp;").replace("<", "&lt;")
-        p.append(f'<g clip-path="url(#{cid})"><text xml:space="preserve" '
-                 f'x="{pad_l}" y="{y + FS - 0.6:.1f}" class="d-f" '
-                 f'font-size="{FS}">{safe}</text></g>')
-
-    for r, lab in ((1, "mon"), (3, "wed"), (5, "fri")):
-        p.append(label(pad_l - 7, pad_t + r * LH + FS - 0.6, lab, 9, "m-f",
-                       "end"))
-
+    # month labels across the top, github-style
     last_m, last_x = None, -999.0
-    base_y = pad_t + 7 * LH + 13
     for i, w in enumerate(weeks):
         m = int(w[0]["date"][5:7])
-        x = pad_l + i * COLW * CW
+        x = pad_l + i * PITCH
         if m != last_m and i < len(weeks) - 1 and x - last_x >= 34:
-            p.append(label(x, base_y, MON[m - 1], 9, "m-f"))
+            p.append(f'<g opacity="0">{fade(0.18)}'
+                     + label(x, 50, MON[m - 1], 9, "m-f") + '</g>')
             last_x = x
         last_m = m
+
+    for r, lab in ((1, "mon"), (3, "wed"), (5, "fri")):
+        p.append(f'<g opacity="0">{fade(0.18)}'
+                 + label(pad_l - 7, grid_t + r * PITCH + CELL - 1.5, lab, 9,
+                         "m-f", "end") + '</g>')
+
+    # the grid, revealed left to right like every other graphic
+    clip, cursor = wipe("yg", pad_l, grid_t - 2, grid_w,
+                        grid_b - grid_t + 4, 0.30)
+    p.append(clip)
+    p.append('<g clip-path="url(#yg)">')
+    for i, w in enumerate(weeks):
+        x = pad_l + i * PITCH
+        for d in w:
+            y = grid_t + d["weekday"] * PITCH
+            p.append(cell(x, y, OPS[level(d["contributionCount"])]))
+    p.append('</g>')
+    p.append(cursor)
+
+    # legend, bottom right, so the encoding is explicit
+    cells_w = 5 * PITCH - (PITCH - CELL)
+    c0 = WIDTH - 40 - cells_w
+    p.append(f'<g opacity="0">{fade(0.30 + REVEAL)}'
+             + label(c0 - 8, leg_y + CELL - 1.5, "less", 9, "m-f", "end")
+             + "".join(cell(c0 + i * PITCH, leg_y, op)
+                       for i, op in enumerate(OPS))
+             + label(c0 + cells_w + 8, leg_y + CELL - 1.5, "more", 9, "m-f")
+             + '</g>')
 
     p.append("</svg>")
     return "".join(p)
